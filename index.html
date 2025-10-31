@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smile Tile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        .parent-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .parent-btn:hover {
+            background: white;
+            color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .tiles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tile {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 250px;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .tile:active {
+            transform: scale(0.95);
+        }
+
+        .tile-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            background: #f0f0f0;
+        }
+
+        .tile-label {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            word-wrap: break-word;
+            width: 100%;
+        }
+
+        .tile-controls {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            gap: 8px;
+        }
+
+        .edit-mode .tile-controls {
+            display: flex;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .add-tile {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px dashed white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .add-tile:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 10px;
+            background: #f0f0f0;
+        }
+
+        .recording-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .record-btn {
+            background: #f44336;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .record-btn.recording {
+            background: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .play-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .audio-status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1976d2;
+        }
+
+        .passcode-input {
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 10px;
+            padding: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 36px;
+            }
+
+            .parent-btn {
+                position: relative;
+                margin-top: 15px;
+                display: block;
+                width: 100%;
+            }
+
+            .tiles-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .tile {
+                min-height: 200px;
+                padding: 15px;
+            }
+
+            .tile-image {
+                height: 120px;
+            }
+
+            .tile-label {
+                font-size: 20px;
+            }
+        }
+
+        .drag-over {
+            opacity: 0.5;
+            border: 3px dashed #667eea;
+        }
+
+        .custom-voice-indicator {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">😊 Smile Tile</div>
+        <button class="parent-btn" id="parentBtn">Parent</button>
+    </div>
+
+    <div class="tiles-container" id="tilesContainer">
+        <!-- Tiles will be dynamically added here -->
+    </div>
+
+    <!-- Passcode Modal -->
+    <div class="modal" id="passcodeModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Enter Passcode</h2>
+            <div class="form-group">
+                <input type="password" class="form-input passcode-input" id="passcodeInput" maxlength="4" placeholder="****">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="submitPasscode">Enter</button>
+                <button class="btn btn-secondary" id="cancelPasscode">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Tile Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">Add New Tile</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Word</label>
+                <input type="text" class="form-input" id="wordInput" placeholder="Enter word">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Image</label>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="uploadImageBtn">Upload Image</button>
+                    <button class="btn btn-secondary" id="captureImageBtn">Take Photo</button>
+                </div>
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+                <img id="imagePreview" class="image-preview hidden">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Custom Voice Recording (Optional)</label>
+                <div class="recording-controls">
+                    <button class="record-btn" id="recordBtn">🎤 Record</button>
+                    <button class="play-btn hidden" id="playRecordingBtn">▶️ Play</button>
+                </div>
+                <div class="audio-status hidden" id="audioStatus"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="saveTileBtn">Save</button>
+                <button class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let editMode = false;
+        let tiles = [];
+        let currentEditIndex = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordedAudioBlob = null;
+        let currentImageData = null;
+        const PASSCODE = '1234';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTiles();
+            renderTiles();
+            setupEventListeners();
+            
+            // Add default tiles if none exist
+            if (tiles.length === 0) {
+                addDefaultTiles();
+            }
+        });
+
+        function addDefaultTiles() {
+            const defaultTiles = [
+                { word: 'Happy', image: createPlaceholderImage('😊'), clicks: 0 },
+                { word: 'Water', image: createPlaceholderImage('💧'), clicks: 0 },
+                { word: 'Food', image: createPlaceholderImage('🍎'), clicks: 0 },
+                { word: 'Help', image: createPlaceholderImage('🆘'), clicks: 0 },
+                { word: 'Yes', image: createPlaceholderImage('✅'), clicks: 0 },
+                { word: 'No', image: createPlaceholderImage('❌'), clicks: 0 }
+            ];
+            
+            tiles = defaultTiles;
+            saveTiles();
+            renderTiles();
+        }
+
+        function createPlaceholderImage(emoji) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 300;
+            canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, 300, 300);
+            
+            ctx.font = '150px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(emoji, 150, 150);
+            
+            return canvas.toDataURL();
+        }
+
+        function setupEventListeners() {
+            // Parent button
+            document.getElementById('parentBtn').addEventListener('click', () => {
+                if (editMode) {
+                    exitEditMode();
+                } else {
+                    showPasscodeModal();
+                }
+            });
+
+            // Passcode modal
+            document.getElementById('submitPasscode').addEventListener('click', checkPasscode);
+            document.getElementById('cancelPasscode').addEventListener('click', hidePasscodeModal);
+            document.getElementById('passcodeInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkPasscode();
+            });
+
+            // Edit modal
+            document.getElementById('saveTileBtn').addEventListener('click', saveTile);
+            document.getElementById('cancelEditBtn').addEventListener('click', hideEditModal);
+            
+            // Image upload
+            document.getElementById('uploadImageBtn').addEventListener('click', () => {
+                document.getElementById('imageInput').click();
+            });
+            
+            document.getElementById('captureImageBtn').addEventListener('click', () => {
+                document.getElementById('cameraInput').click();
+            });
+            
+            document.getElementById('imageInput').addEventListener('change', handleImageUpload);
+            document.getElementById('cameraInput').addEventListener('change', handleImageUpload);
+
+            // Recording
+            document.getElementById('recordBtn').addEventListener('click', toggleRecording);
+            document.getElementById('playRecordingBtn').addEventListener('click', playRecording);
+        }
+
+        function showPasscodeModal() {
+            document.getElementById('passcodeModal').classList.add('active');
+            document.getElementById('passcodeInput').value = '';
+            document.getElementById('passcodeInput').focus();
+        }
+
+        function hidePasscodeModal() {
+            document.getElementById('passcodeModal').classList.remove('active');
+        }
+
+        function checkPasscode() {
+            const input = document.getElementById('passcodeInput').value;
+            if (input === PASSCODE) {
+                hidePasscodeModal();
+                enterEditMode();
+            } else {
+                alert('Incorrect passcode');
+                document.getElementById('passcodeInput').value = '';
+            }
+        }
+
+        function enterEditMode() {
+            editMode = true;
+            document.getElementById('parentBtn').textContent = 'Exit Edit Mode';
+            document.getElementById('parentBtn').style.background = '#f44336';
+            document.getElementById('tilesContainer').classList.add('edit-mode');
+            renderTiles();
+        }
+
+        function exitEditMode() {
+            editMode = false;
+            document.getElementById('parentBtn').textContent = 'Parent';
+            document.getElementById('parentBtn').style.background = 'rgba(255,255,255,0.3)';
+            document.getElementById('tilesContainer').classList.remove('edit-mode');
+            renderTiles();
+        }
+
+        function renderTiles() {
+            const container = document.getElementById('tilesContainer');
+            container.innerHTML = '';
+
+            // Sort by click frequency
+            const sortedTiles = [...tiles].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+
+            sortedTiles.forEach((tile, index) => {
+                const originalIndex = tiles.findIndex(t => t === tile);
+                const tileEl = createTileElement(tile, originalIndex);
+                container.appendChild(tileEl);
+            });
+
+            // Add "Add Tile" button in edit mode
+            if (editMode) {
+                const addTile = document.createElement('div');
+                addTile.className = 'tile add-tile';
+                addTile.innerHTML = '+<div style="font-size: 16px; margin-top: 10px;">Add Tile</div>';
+                addTile.addEventListener('click', () => openAddTileModal());
+                container.appendChild(addTile);
+            }
+        }
+
+        function createTileElement(tile, index) {
+            const tileEl = document.createElement('div');
+            tileEl.className = 'tile';
+            tileEl.draggable = editMode;
+
+            const img = document.createElement('img');
+            img.className = 'tile-image';
+            img.src = tile.image || createPlaceholderImage('📷');
+            img.alt = tile.word;
+
+            const label = document.createElement('div');
+            label.className = 'tile-label';
+            label.textContent = tile.word;
+
+            tileEl.appendChild(img);
+            tileEl.appendChild(label);
+
+            if (tile.customAudio) {
+                const indicator = document.createElement('div');
+                indicator.className = 'custom-voice-indicator';
+                indicator.textContent = '🎤';
+                tileEl.appendChild(indicator);
+            }
+
+            if (editMode) {
+                const controls = document.createElement('div');
+                controls.className = 'tile-controls';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'control-btn edit-btn';
+                editBtn.textContent = '✏️';
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEditTileModal(index);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'control-btn delete-btn';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTile(index);
+                });
+
+                controls.appendChild(editBtn);
+                controls.appendChild(deleteBtn);
+                tileEl.appendChild(controls);
+
+                // Drag and drop
+                tileEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', index);
+                });
+
+                tileEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    tileEl.classList.add('drag-over');
+                });
+
+                tileEl.addEventListener('dragleave', () => {
+                    tileEl.classList.remove('drag-over');
+                });
+
+                tileEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    tileEl.classList.remove('drag-over');
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    swapTiles(fromIndex, index);
+                });
+            } else {
+                tileEl.addEventListener('click', () => speakWord(tile));
+            }
+
+            return tileEl;
+        }
+
+        function speakWord(tile) {
+            // Increment click count
+            tile.clicks = (tile.clicks || 0) + 1;
+            saveTiles();
+            
+            if (tile.customAudio) {
+                // Play custom recording
+                const audio = new Audio(tile.customAudio);
+                audio.play();
+            } else {
+                // Use text-to-speech
+                const utterance = new SpeechSynthesisUtterance(tile.word);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function openAddTileModal() {
+            currentEditIndex = null;
+            document.getElementById('modalTitle').textContent = 'Add New Tile';
+            document.getElementById('wordInput').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('playRecordingBtn').classList.add('hidden');
+            document.getElementById('audioStatus').classList.add('hidden');
+            currentImageData = null;
+            recordedAudioBlob = null;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function openEditTileModal(index) {
+            currentEditIndex = index;
+            const tile = tiles[index];
+            
+            document.getElementById('modalTitle').textContent = 'Edit Tile';
+            document.getElementById('wordInput').value = tile.word;
+            
+            if (tile.image) {
+                document.getElementById('imagePreview').src = tile.image;
+                document.getElementById('imagePreview').classList.remove('hidden');
+                currentImageData = tile.image;
+            } else {
+                document.getElementById('imagePreview').classList.add('hidden');
+                currentImageData = null;
+            }
+
+            if (tile.customAudio) {
+                document.getElementById('playRecordingBtn').classList.remove('hidden');
+                document.getElementById('audioStatus').classList.remove('hidden');
+                document.getElementById('audioStatus').textContent = '✓ Custom voice recording saved';
+                recordedAudioBlob = tile.customAudio;
+            } else {
+                document.getElementById('playRecordingBtn').classList.add('hidden');
+                document.getElementById('audioStatus').classList.add('hidden');
+                recordedAudioBlob = null;
+            }
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function hideEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Compress image before storing
+                    compressImage(event.target.result, (compressed) => {
+                        currentImageData = compressed;
+                        document.getElementById('imagePreview').src = compressed;
+                        document.getElementById('imagePreview').classList.remove('hidden');
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function compressImage(dataUrl, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Resize to max 600x600 while maintaining aspect ratio
+                let width = img.width;
+                let height = img.height;
+                const maxSize = 600;
+                
+                if (width > height && width > maxSize) {
+                    height = (height / width) * maxSize;
+                    width = maxSize;
+                } else if (height > maxSize) {
+                    width = (width / height) * maxSize;
+                    height = maxSize;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Compress to JPEG with 0.7 quality
+                callback(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = dataUrl;
+        }
+
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+            const audioStatus = document.getElementById('audioStatus');
+            
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                // Stop recording
+                mediaRecorder.stop();
+                recordBtn.textContent = '🎤 Record';
+                recordBtn.classList.remove('recording');
+                audioStatus.classList.remove('hidden');
+                audioStatus.textContent = 'Processing audio...';
+            } else {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    
+                    // Use better audio format if available
+                    let options = { mimeType: 'audio/webm' };
+                    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                        options = { mimeType: 'audio/mp4' };
+                        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                            options = {};
+                        }
+                    }
+                    
+                    mediaRecorder = new MediaRecorder(stream, options);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+                        
+                        // Trim silence from audio
+                        await trimSilence(audioBlob);
+                        
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    recordBtn.textContent = '⏹️ Stop Recording';
+                    recordBtn.classList.add('recording');
+                    audioStatus.classList.add('hidden');
+                } catch (err) {
+                    console.error('Recording error:', err);
+                    alert('Microphone access denied. Please allow microphone access to record custom voices.');
+                }
+            }
+        }
+
+        async function trimSilence(audioBlob) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                const channelData = audioBuffer.getChannelData(0);
+                const sampleRate = audioBuffer.sampleRate;
+                
+                // Find start and end of actual speech (threshold-based detection)
+                const threshold = 0.02; // Adjust sensitivity
+                let start = 0;
+                let end = channelData.length - 1;
+                
+                // Find start (first sample above threshold)
+                for (let i = 0; i < channelData.length; i++) {
+                    if (Math.abs(channelData[i]) > threshold) {
+                        start = Math.max(0, i - (sampleRate * 0.1)); // Add 100ms padding before
+                        break;
+                    }
+                }
+                
+                // Find end (last sample above threshold)
+                for (let i = channelData.length - 1; i >= 0; i--) {
+                    if (Math.abs(channelData[i]) > threshold) {
+                        end = Math.min(channelData.length - 1, i + (sampleRate * 0.1)); // Add 100ms padding after
+                        break;
+                    }
+                }
+                
+                // Create trimmed audio buffer
+                const trimmedLength = end - start;
+                const trimmedBuffer = audioContext.createBuffer(
+                    audioBuffer.numberOfChannels,
+                    trimmedLength,
+                    sampleRate
+                );
+                
+                for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    const trimmedData = trimmedBuffer.getChannelData(channel);
+                    for (let i = 0; i < trimmedLength; i++) {
+                        trimmedData[i] = channelData[start + i];
+                    }
+                }
+                
+                // Convert back to blob
+                const offlineContext = new OfflineAudioContext(
+                    trimmedBuffer.numberOfChannels,
+                    trimmedBuffer.length,
+                    trimmedBuffer.sampleRate
+                );
+                
+                const source = offlineContext.createBufferSource();
+                source.buffer = trimmedBuffer;
+                source.connect(offlineContext.destination);
+                source.start();
+                
+                const renderedBuffer = await offlineContext.startRendering();
+                const wavBlob = audioBufferToWav(renderedBuffer);
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    recordedAudioBlob = reader.result;
+                    document.getElementById('playRecordingBtn').classList.remove('hidden');
+                    document.getElementById('audioStatus').classList.remove('hidden');
+                    document.getElementById('audioStatus').textContent = '✓ Recording saved and trimmed! Click play to preview.';
+                };
+                reader.readAsDataURL(wavBlob);
+                
+            } catch (err) {
+                console.error('Error trimming audio:', err);
+                // Fallback: save without trimming
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    recordedAudioBlob = reader.result;
+                    document.getElementById('playRecordingBtn').classList.remove('hidden');
+                    document.getElementById('audioStatus').classList.remove('hidden');
+                    document.getElementById('audioStatus').textContent = '✓ Recording saved! Click play to preview.';
+                };
+                reader.readAsDataURL(audioBlob);
+            }
+        }
+
+        function audioBufferToWav(buffer) {
+            const length = buffer.length * buffer.numberOfChannels * 2;
+            const arrayBuffer = new ArrayBuffer(44 + length);
+            const view = new DataView(arrayBuffer);
+            const channels = [];
+            let offset = 0;
+            let pos = 0;
+
+            // Write WAV header
+            setUint32(0x46464952); // "RIFF"
+            setUint32(36 + length); // file length - 8
+            setUint32(0x45564157); // "WAVE"
+            setUint32(0x20746d66); // "fmt " chunk
+            setUint32(16); // length = 16
+            setUint16(1); // PCM (uncompressed)
+            setUint16(buffer.numberOfChannels);
+            setUint32(buffer.sampleRate);
+            setUint32(buffer.sampleRate * 2 * buffer.numberOfChannels); // byte rate
+            setUint16(buffer.numberOfChannels * 2); // block align
+            setUint16(16); // bits per sample
+            setUint32(0x61746164); // "data" chunk
+            setUint32(length);
+
+            // Write interleaved data
+            for (let i = 0; i < buffer.numberOfChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+
+            while (pos < buffer.length) {
+                for (let i = 0; i < buffer.numberOfChannels; i++) {
+                    let sample = Math.max(-1, Math.min(1, channels[i][pos]));
+                    sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(44 + offset, sample, true);
+                    offset += 2;
+                }
+                pos++;
+            }
+
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+
+            function setUint16(data) {
+                view.setUint16(pos, data, true);
+                pos += 2;
+            }
+
+            function setUint32(data) {
+                view.setUint32(pos, data, true);
+                pos += 4;
+            }
+        }
+
+        function playRecording() {
+            if (recordedAudioBlob) {
+                const audio = new Audio(recordedAudioBlob);
+                audio.play();
+            }
+        }
+
+        function saveTile() {
+            const word = document.getElementById('wordInput').value.trim();
+            
+            if (!word) {
+                alert('Please enter a word');
+                return;
+            }
+
+            const tileData = {
+                word: word,
+                image: currentImageData || createPlaceholderImage('📷'),
+                customAudio: recordedAudioBlob || null,
+                clicks: 0
+            };
+
+            if (currentEditIndex !== null) {
+                // Edit existing tile
+                tileData.clicks = tiles[currentEditIndex].clicks || 0;
+                tiles[currentEditIndex] = tileData;
+            } else {
+                // Add new tile
+                tiles.push(tileData);
+            }
+
+            saveTiles();
+            renderTiles();
+            hideEditModal();
+        }
+
+        function deleteTile(index) {
+            if (confirm('Are you sure you want to delete this tile?')) {
+                tiles.splice(index, 1);
+                saveTiles();
+                renderTiles();
+            }
+        }
+
+        function swapTiles(fromIndex, toIndex) {
+            if (fromIndex !== toIndex) {
+                const temp = tiles[fromIndex];
+                tiles[fromIndex] = tiles[toIndex];
+                tiles[toIndex] = temp;
+                saveTiles();
+                renderTiles();
+            }
+        }
+
+        function saveTiles() {
+            localStorage.setItem('smileTiles', JSON.stringify(tiles));
+        }
+
+        function loadTiles() {
+            const saved = localStorage.getItem('smileTiles');
+            if (saved) {
+                tiles = JSON.parse(saved);
+            }
+        }
+    </script>
+</body>
+</html>
